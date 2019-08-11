@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import gql from 'graphql-tag';
+import { Query } from 'react-apollo';
 
 const useStyles = makeStyles(theme => ({
     menuButton: {
@@ -8,30 +10,26 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-class Main extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { response: "" }
+export const GET_BOOKS = gql`
+  query GetBooks {
+    books {
+      id
+      title
     }
+  }
+`;
 
-    callAPI() {
-        fetch("http://localhost:8081/")
-            .then(res => res.text())
-            .then(res => this.setState({ response: res }))
-            .catch(err => err);
-    }
-
-    componentDidMount() {
-        this.callAPI();
-    }
-
-    
-    render() {
-        return (
-            <Container>
-                <div>{this.state.response}</div>
-            </Container>
-        )
-    }
-}
-export default Main;
+export default () => (
+    <Query query={GET_BOOKS}>
+      {({ loading, data }) => !loading && (
+        <Container>
+            {data.books.map(book => (
+                <div>
+                    <div>{book.id}</div>
+                    <div>{book.title}</div>
+                </div>
+            ))}
+        </Container>
+      )}
+    </Query>
+  );
